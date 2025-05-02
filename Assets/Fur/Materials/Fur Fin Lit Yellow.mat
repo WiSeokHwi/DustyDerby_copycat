@@ -45,10 +45,10 @@ Material:
     - _FaceNormalFactor: 0.113
     - _FaceViewProdThresh: 1
     - _FinJointNum: 4
-    - _FinLength: 0.009
+    - _FinLength: 0.127
     - _Metallic: 0
     - _NormalFactor: 0.196
-    - _NormalScale: 0.277
+    - _NormalScale: 0.399
     - _Occlusion: 0.441
     - _RandomDirection: 0.779
     - _RimLightIntensity: 0.871

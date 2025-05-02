@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerInput : MonoBehaviour
@@ -22,6 +23,6 @@ public class PlayerInput : MonoBehaviour
         moveInput.x = Input.GetAxis("Horizontal");
         moveInput.y = Input.GetAxis("Vertical");
         rotateInput = Input.GetAxis("Mouse X");
-        mouseDown = Input.GetMouseButton(0);
+        mouseDown = Input.GetMouseButtonDown(0);
     }
 }

@@ -1,16 +1,26 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, IsHit
 {
     PlayerInput playerInput;
-    private Rigidbody rb;
-    
-    public Transform cam;
-    
-    public float moveSpeed = 1f;
+    public float moveSpeed = 10f;
     public float lookSpeed = 120f;
+    public float equipRange = 1.5f;
+    public float equipAngle = 45f;
+    public bool isSturn = false;
+    public GameObject sturnParticles;
     
+    
+    Collider[] item = new Collider[10];
+    
+    public Transform equipPosition;
+    
+    private GameObject equipItem;
+
+    private Rigidbody rb;
+    Vector3 velocity;
     private void Awake()
     {
         if (playerInput == null)
@@ -29,8 +39,19 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (isSturn) return;
         
+        if (!equipItem)
+        {
+            EquipItem();
+        }
 
+        if (equipItem && Input.GetMouseButtonDown(0))
+        {
+            ThrowItem();
+        }
+        
+        
         if (playerInput.rotateInput != 0)
         {
             HandleCameraLook();
@@ -39,10 +60,28 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (isSturn) return;
         if (playerInput.moveInput.magnitude != 0)
         {
             MovePlayer();
         }
+        
+    }
+
+    public void OnHit(Vector3 hitDirection)
+    {
+        StartCoroutine(IsSturn(hitDirection));
+    }
+
+    private IEnumerator IsSturn(Vector3 hitDirection)
+    {
+        isSturn = true;
+        sturnParticles.SetActive(true);
+        hitDirection.y = 0;
+        rb.AddForce(hitDirection.normalized * 10f, ForceMode.Impulse);
+        yield return new WaitForSecondsRealtime(2f);
+        sturnParticles.SetActive(false);
+        isSturn = false;
     }
 
     void MovePlayer()
@@ -58,8 +97,13 @@ public class PlayerController : MonoBehaviour
         
         
         Vector3 moveDirection = (moveX * rbRight) + (moveZ * rbForward);
+        Vector3 newVelocity = moveDirection * moveSpeed;
+        newVelocity.y = rb.linearVelocity.y; // 기존 y축 속도 유지
+
+        rb.linearVelocity = newVelocity;
         
-        rb.MovePosition(rb.position + moveDirection * (moveSpeed * Time.deltaTime));
+        
+        /*rb.MovePosition(rb.position + moveDirection * (moveSpeed * Time.fixedDeltaTime));*/
     }
     void HandleCameraLook()
     {
@@ -68,10 +112,59 @@ public class PlayerController : MonoBehaviour
         float mouseX = playerInput.rotateInput * lookSpeed * Time.deltaTime;
         
 
-        // 1. 수평 회전: 플레이어 오브젝트 자체를 Y축 기준으로 회전시킵니다.
-        // 이렇게 하면 플레이어의 transform.forward 방향이 마우스 수평 움직임에 따라 바뀝니다.
-        transform.Rotate(Vector3.up * mouseX);
+        Quaternion deltaRotation = Quaternion.Euler(0f, mouseX, 0f);
+        rb.MoveRotation(rb.rotation * deltaRotation);
         
         
+    }
+
+    void EquipItem()
+    {
+        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, equipRange, item);
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            Collider col = item[i];
+            if (col && col.gameObject.layer == LayerMask.NameToLayer("Item") && !equipItem)
+            {
+                Vector3 directionToTarget = (col.transform.position - transform.position).normalized;
+                float angle = Vector3.Angle(transform.forward, directionToTarget);
+                if (angle < equipAngle)
+                {
+                    if (playerInput.mouseDown)
+                    {
+                        equipItem = col.gameObject;
+                        Rigidbody itemRb = equipItem.GetComponent<Rigidbody>();
+                        itemRb.isKinematic = true;
+                        equipItem.transform.position = equipPosition.position;
+                        equipItem.transform.SetParent(equipPosition);
+                        Debug.Log(equipItem.name);
+                    }
+                }
+            }
+        }
+    }
+
+    void ThrowItem()
+    {
+        equipItem.GetComponent<Rigidbody>().isKinematic = false;
+        equipItem.GetComponent<Rigidbody>().useGravity = true;
+        equipItem.GetComponent<Collider>().isTrigger = false;
+        equipItem.GetComponent<Rigidbody>().AddForce(transform.forward * 1000f);
+        equipItem = null;
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, equipRange);
+        
+        // 부채꼴의 왼쪽과 오른쪽 경계선을 그립니다
+        Vector3 leftEdge = Quaternion.Euler(0, -equipAngle / 2, 0) * transform.forward * equipRange;
+        Vector3 rightEdge = Quaternion.Euler(0, equipAngle / 2, 0) * transform.forward * equipRange;
+
+        // 원점에서 부채꼴의 왼쪽 끝과 오른쪽 끝으로 선을 그립니다
+        Gizmos.DrawLine(transform.position, transform.position + leftEdge);
+        Gizmos.DrawLine(transform.position, transform.position + rightEdge);
     }
 }
