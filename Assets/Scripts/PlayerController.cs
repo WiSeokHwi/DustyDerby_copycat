@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Benjathemaker;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour, IsHit
@@ -30,11 +31,7 @@ public class PlayerController : MonoBehaviour, IsHit
         rb = GetComponent<Rigidbody>();
     }
 
-    void Start()
-    {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-    }
+
 
     // Update is called once per frame
     void Update()
@@ -134,6 +131,7 @@ public class PlayerController : MonoBehaviour, IsHit
                     if (playerInput.mouseDown)
                     {
                         equipItem = col.gameObject;
+                        equipItem.GetComponent<SimpleGemsAnim>().enabled = false;
                         Rigidbody itemRb = equipItem.GetComponent<Rigidbody>();
                         itemRb.isKinematic = true;
                         equipItem.transform.position = equipPosition.position;

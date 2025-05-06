@@ -6,7 +6,11 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager instance;
     public TextMeshProUGUI scoreText;
+    public GameObject pauseGamePanel;
+    public GameObject gameOverPanel;
     private int maxScore = 10;
+    public bool gameOver = false;
+    
     private int _score;
     public int Score
     {
@@ -40,5 +44,10 @@ public class UIManager : MonoBehaviour
     private void UpdateScoreUI()
     {
         scoreText.text = $"{Score} / {maxScore}";
+
+        if (_score >= maxScore)
+        {
+            gameOver = true;
+        }
     }
 }
