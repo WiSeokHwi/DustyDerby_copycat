@@ -13,7 +13,7 @@ public class EnemyController : MonoBehaviour, IsHit
     private bool isChasing = false;
     private Vector3 target;
     private LayerMask playerLayerMask;
-    public GameObject sturnParticle;
+    public ParticleSystem sturnParticle;
     
 
     private void Awake()
@@ -40,7 +40,7 @@ public class EnemyController : MonoBehaviour, IsHit
     {
         if (isChasing) return;
         
-        Debug.Log("랜덤 위치로 이동");
+        
         Vector3 randomPoint = transform.position + Random.insideUnitSphere * posRange;
         if (NavMesh.SamplePosition(randomPoint, out NavMeshHit hit, posRange, NavMesh.AllAreas))
         {
@@ -55,18 +55,22 @@ public class EnemyController : MonoBehaviour, IsHit
         Gizmos.DrawWireSphere(transform.position, chaseRange);
     }
 
-    public void OnHit()
+    public void OnHit(Vector3 hitDirection)
     {
         StartCoroutine(IsSturn());
     }
 
     IEnumerator IsSturn()
     {
+        Debug.Log("공격받은");
         agent.isStopped = true;
-        sturnParticle.SetActive(true);
+        sturnParticle.gameObject.SetActive(true);
+        sturnParticle.Play();
         yield return new WaitForSeconds(2f);
-        sturnParticle.SetActive(false);
+        sturnParticle.gameObject.SetActive(false);
+        sturnParticle.Stop();
         agent.isStopped = false;
+        RandomPos();
     }
 
     void IsChasing()
