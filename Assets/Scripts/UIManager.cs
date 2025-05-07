@@ -8,8 +8,9 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI scoreText;
     public GameObject pauseGamePanel;
     public GameObject gameOverPanel;
-    private int maxScore = 10;
-    public bool gameOver = false;
+    public GameObject ScorePanel;
+    private int maxScore = 2;
+    
     
     private int _score;
     public int Score
@@ -45,9 +46,14 @@ public class UIManager : MonoBehaviour
     {
         scoreText.text = $"{Score} / {maxScore}";
 
-        if (_score >= maxScore)
+        if (Score >= maxScore)
         {
-            gameOver = true;
+            GameSceneManager.Instance.gameState = GameSceneManager.GameState.GameOver;
+            gameOverPanel.SetActive(true);
+            ScorePanel.SetActive(false);
+            Time.timeScale = 0;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
     }
 }

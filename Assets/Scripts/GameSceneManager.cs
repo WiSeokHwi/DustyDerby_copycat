@@ -1,6 +1,6 @@
 
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 
 
 public class GameSceneManager : MonoBehaviour
@@ -19,11 +19,9 @@ public class GameSceneManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            Debug.Log("GameSceneManager 인스턴스 생성됨: " + gameObject.name);
         }
         else
         {
-            Debug.Log("중복 GameSceneManager 발견, 삭제됨: " + gameObject.name);
             Destroy(gameObject);
         }
         Time.timeScale = 1;
@@ -34,7 +32,8 @@ public class GameSceneManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (GameSceneManager.Instance.gameState == GameSceneManager.GameState.GameOver) return;
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (gameState == GameState.Playing)
             {
@@ -47,7 +46,7 @@ public class GameSceneManager : MonoBehaviour
         }
     }
 
-    void PauseGame()
+    public void PauseGame()
     {
         
         gameState = GameState.Pause;
@@ -60,7 +59,7 @@ public class GameSceneManager : MonoBehaviour
         
     }
 
-    void ResumeGame()
+    public void ResumeGame()
     {
         gameState = GameState.Playing;
         Time.timeScale = 1;

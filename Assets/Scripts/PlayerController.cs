@@ -7,7 +7,7 @@ public class PlayerController : MonoBehaviour, IsHit
 {
     PlayerInput playerInput;
     public float moveSpeed = 10f;
-    public float lookSpeed = 120f;
+    public float lookSpeed = 240f;
     public float equipRange = 1.5f;
     public float equipAngle = 45f;
     public bool isSturn = false;
@@ -36,7 +36,7 @@ public class PlayerController : MonoBehaviour, IsHit
     // Update is called once per frame
     void Update()
     {
-        if (isSturn) return;
+        if (isSturn|| GameSceneManager.Instance.gameState == GameSceneManager.GameState.GameOver) return;
         
         if (!equipItem)
         {
@@ -57,7 +57,7 @@ public class PlayerController : MonoBehaviour, IsHit
 
     private void FixedUpdate()
     {
-        if (isSturn) return;
+        if (isSturn || GameSceneManager.Instance.gameState == GameSceneManager.GameState.GameOver) return;
         if (playerInput.moveInput.magnitude != 0)
         {
             MovePlayer();
@@ -130,7 +130,10 @@ public class PlayerController : MonoBehaviour, IsHit
                 {
                     if (playerInput.mouseDown)
                     {
+                        
                         equipItem = col.gameObject;
+                        equipItem.GetComponent<Collider>().isTrigger = false;
+                        equipItem.GetComponent<Collider>().enabled = false;
                         equipItem.GetComponent<SimpleGemsAnim>().enabled = false;
                         Rigidbody itemRb = equipItem.GetComponent<Rigidbody>();
                         itemRb.isKinematic = true;
@@ -145,10 +148,11 @@ public class PlayerController : MonoBehaviour, IsHit
 
     void ThrowItem()
     {
-        equipItem.GetComponent<Rigidbody>().isKinematic = false;
-        equipItem.GetComponent<Rigidbody>().useGravity = true;
-        equipItem.GetComponent<Collider>().isTrigger = false;
-        equipItem.GetComponent<Rigidbody>().AddForce(transform.forward * 1000f);
+        Rigidbody throwItemRb = equipItem.GetComponent<Rigidbody>();
+        throwItemRb.isKinematic = false;
+        throwItemRb.useGravity = true;
+        equipItem.GetComponent<Collider>().enabled = true;
+        throwItemRb.AddForce(transform.forward * 1000f);
         equipItem = null;
     }
 

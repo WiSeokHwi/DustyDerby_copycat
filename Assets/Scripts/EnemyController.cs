@@ -33,6 +33,7 @@ public class EnemyController : MonoBehaviour, IsHit
     // Update is called once per frame
     void Update()
     {
+        
         IsChasing();
     }
 
@@ -85,10 +86,9 @@ public class EnemyController : MonoBehaviour, IsHit
             isChasing = true;
             break; // 플레이어 찾으면 더 이상 체크 안 함
         }
-        if (colliders.Length <= 0 && agent.remainingDistance <= agent.stoppingDistance && isChasing)
+        if (colliders.Length <= 0)
         {
             isChasing = false; // 추적 끝
-            RandomPos(); // 바로 랜덤 이동 재개
         }
        
     }
