@@ -9,7 +9,7 @@ public class UIManager : MonoBehaviour
     public GameObject pauseGamePanel;
     public GameObject gameOverPanel;
     public GameObject ScorePanel;
-    private int maxScore = 2;
+    private int maxScore = 20;
     
     
     private int _score;
